@@ -471,7 +471,9 @@ class FjspMaEnv(MultiAgentEnv):
             # update machines' state
             for machine_id in range(self.n_machines):
                 expected_duration = self.get_operation_duration(self.chosen_job, self.operation_id, machine_id)
-                self.machine_features[machine_id, 5] = max(-1.0, expected_duration / self.machine_features[machine_id, 1])
+                # Prevent division by zero - use 1.0 as default if machine_features[machine_id, 1] is 0
+                divisor = self.machine_features[machine_id, 1] if self.machine_features[machine_id, 1] != 0 else 1.0
+                self.machine_features[machine_id, 5] = max(-1.0, expected_duration / divisor)
                 if self.machine_features[machine_id, 5] > 0:
                     self.machine_action_mask[machine_id] = 1
                 else:
@@ -916,7 +918,7 @@ class FjspMaEnv(MultiAgentEnv):
         # Save to JSON
         with open(output_path, "w") as f:
             json.dump(output_data, f, indent=2)
-        print(f"Scheduling result saved to {output_path}")
+        # print(f"Scheduling result saved to {output_path}")
 
 
 

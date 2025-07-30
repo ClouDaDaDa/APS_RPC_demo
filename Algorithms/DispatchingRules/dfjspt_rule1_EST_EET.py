@@ -11,13 +11,13 @@ from Environment.dfjspt_env import FjspMaEnv
 
 def est_eet_rule(env, verbose=False):
     """
-    基础规则：每次选择最早可开始作业（EST），分配最早可用机器（EET）。
+    Basic rule: Select the earliest start time job (EST) and assign to the earliest end time machine (EET).
     """
     obs, info = env.reset()
     done = False
     total_reward = 0
     while not done:
-        # 作业选择阶段
+        # Job selection phase
         job_mask = obs['agent0']['action_mask']
         job_features = obs['agent0']['observation']
         available_jobs = np.where(job_mask == 1)[0]
@@ -31,7 +31,7 @@ def est_eet_rule(env, verbose=False):
         total_reward += reward['agent0']
         if terminated['__all__']:
             break
-        # 机器选择阶段
+        # Machine selection phase
         machine_mask = obs['agent1']['action_mask']
         machine_features = obs['agent1']['observation']
         available_machines = np.where(machine_mask == 1)[0]
@@ -48,14 +48,14 @@ def est_eet_rule(env, verbose=False):
 
 def est_eet_rule_weighted(env, alpha=0.7, verbose=False):
     """
-    优先级加权规则：作业选择时，优先级高的订单更易被选中（带权重），机器分配仍为EET。
-    alpha: 优先级权重，0~1，越大越偏向优先级，越小越偏向到达时间。
+    Priority-weighted rule: Job selection considers order priority with weight, machine assignment still uses EET.
+    alpha: Priority weight, 0~1, larger values favor priority, smaller values favor arrival time.
     """
     obs, info = env.reset()
     done = False
     total_reward = 0
     while not done:
-        # 作业选择阶段
+        # Job selection phase
         job_mask = obs['agent0']['action_mask']
         job_features = obs['agent0']['observation']
         available_jobs = np.where(job_mask == 1)[0]
@@ -64,7 +64,7 @@ def est_eet_rule_weighted(env, alpha=0.7, verbose=False):
         else:
             priorities = np.array([env.job_priority[job_id] for job_id in available_jobs])
             arrival_times = job_features[available_jobs, 2]
-            # 归一化
+            # Normalize
             norm_priority = priorities / (priorities.max() if priorities.max() > 0 else 1)
             norm_arrival = (arrival_times - arrival_times.min()) / (np.ptp(arrival_times) + 1e-6)
             score = alpha * norm_priority - (1 - alpha) * norm_arrival
@@ -74,7 +74,7 @@ def est_eet_rule_weighted(env, alpha=0.7, verbose=False):
         total_reward += reward['agent0']
         if terminated['__all__']:
             break
-        # 机器选择阶段
+        # Machine selection phase
         machine_mask = obs['agent1']['action_mask']
         machine_features = obs['agent1']['observation']
         available_machines = np.where(machine_mask == 1)[0]
@@ -93,19 +93,19 @@ if __name__ == '__main__':
     input_case_name = 'input_data_example_W3_O3_P10.json'
     input_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
                              'Data', 'InputData', input_case_name)
-    # 基础调度
+    # Basic scheduling
     env1 = FjspMaEnv({'train_or_eval_or_test': 'test', 'inputdata_json': input_path})
     env1.build_and_save_output_json = lambda output_path=None: FjspMaEnv.build_and_save_output_json(env1, output_path or 'Data/OutputData/output_EST_EET_' + input_case_name)
     makespan1, total_reward1 = est_eet_rule(env1, verbose=True)
-    print(f"[基础规则] Makespan: {makespan1}, Total Reward: {total_reward1}")
-    print("基础调度输出: Data/OutputData/output_EST_EET_" + input_case_name)
+    print(f"[Basic Rule] Makespan: {makespan1}, Total Reward: {total_reward1}")
+    print("Basic scheduling output: Data/OutputData/output_EST_EET_" + input_case_name)
 
-    # 优先级加权调度
+    # Priority-weighted scheduling
     env2 = FjspMaEnv({'train_or_eval_or_test': 'test', 'inputdata_json': input_path})
     env2.build_and_save_output_json = lambda output_path=None: FjspMaEnv.build_and_save_output_json(env2, output_path or 'Data/OutputData/output_EST_EET_weighted_' + input_case_name)
     makespan2, total_reward2 = est_eet_rule_weighted(env2, alpha=0.7, verbose=True)
-    print(f"[优先级加权规则] Makespan: {makespan2}, Total Reward: {total_reward2}")
-    print("优先级加权调度输出: Data/OutputData/output_EST_EET_weighted_" + input_case_name)
+    print(f"[Priority-weighted Rule] Makespan: {makespan2}, Total Reward: {total_reward2}")
+    print("Priority-weighted scheduling output: Data/OutputData/output_EST_EET_weighted_" + input_case_name)
 
 
 

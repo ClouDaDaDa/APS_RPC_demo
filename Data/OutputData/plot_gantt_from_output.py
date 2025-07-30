@@ -81,7 +81,8 @@ def plot_gantt_from_output(json_path, save_path=None, color_by='job'):
 if __name__ == '__main__':
     json_path = os.path.join(
         os.path.dirname(__file__), 
-        'output_data_GA_example.json'
+        # 'output_data_GA_example.json'
+        'output_est_eet_weighted_input_data_example_W3_O3_P10.json'
     )
     plot_gantt_from_output(
         json_path=json_path,

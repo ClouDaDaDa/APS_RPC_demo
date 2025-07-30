@@ -275,7 +275,7 @@ if __name__ == '__main__':
     parser.add_argument('--input', type=str, default='Data/InputData/input_data_example_W3_O3_P10.json')
     parser.add_argument('--output', type=str, default='Data/OutputData/output_data_GA_example.json')
     parser.add_argument('--pop', type=int, default=100)
-    parser.add_argument('--gen', type=int, default=40)
+    parser.add_argument('--gen', type=int, default=20)
     parser.add_argument('--alpha', type=float, default=0.7)
     parser.add_argument('--seed', type=int, default=None)
     parser.add_argument('--test_rule', action='store_true', help='Test rule-based chromosome decoding')
@@ -337,5 +337,7 @@ if __name__ == '__main__':
     else:
         best = ga.evolve()
         print(f"Best weighted sum: {best.fitness:.2f}")
+        # Save only the final result
         best.schedule_result.build_and_save_output_json(args.output)
         print(f"GA scheduling result saved to: {args.output}")
+        print(f"Final Makespan: {best.schedule_result.final_makespan}")

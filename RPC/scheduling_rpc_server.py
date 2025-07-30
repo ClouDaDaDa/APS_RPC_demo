@@ -1,16 +1,21 @@
 import json
 import time
 import logging
+import os
 from datetime import datetime
 from RPC.rpc_class import RPCServer, RPCConfig
 from RPC.scheduling_algorithms import scheduling_processor
 
 # Configure logging
+# Create logs directory if it doesn't exist
+log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(log_dir, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('scheduling_rpc_server.log'),
+        logging.FileHandler(os.path.join(log_dir, 'rpc_scheduling_server.log')),
         logging.StreamHandler()
     ]
 )
