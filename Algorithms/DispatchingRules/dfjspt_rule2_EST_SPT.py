@@ -93,7 +93,7 @@ def est_spt_rule_weighted(env, alpha=0.7, verbose=False):
 
 if __name__ == '__main__':
     import json
-    input_case_name = 'input_data_example_W3_O3_P10.json'
+    input_case_name = 'input_test_1.json'
     input_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
                              'Data', 'InputData', input_case_name)
     with open(input_path, 'r') as f:

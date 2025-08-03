@@ -72,13 +72,12 @@ class WebSocketSchedulingProcessor:
             
             logger.info(f"Running EST-EET weighted scheduling with alpha={alpha}")
             
-            # Create temporary input file
-            temp_input_file = self._create_temp_input_file(input_data)
+            # # Create temporary input file
+            # temp_input_file = self._create_temp_input_file(input_data)
             
             # Create environment
             env = FjspMaEnv({
-                'train_or_eval_or_test': 'test', 
-                'inputdata_json': temp_input_file
+                'inputdata_json': input_data
             })
             
             # Run scheduling algorithm
@@ -94,8 +93,8 @@ class WebSocketSchedulingProcessor:
             
             execution_time = time.time() - start_time
             
-            # Cleanup
-            self._cleanup_temp_file(temp_input_file)
+            # # Cleanup
+            # self._cleanup_temp_file(temp_input_file)
             
             logger.info(f"EST-EET weighted scheduling completed in {execution_time:.2f}s, makespan: {makespan}")
             
@@ -126,10 +125,9 @@ class WebSocketSchedulingProcessor:
             input_data = data.get("input_data", {})
             input_filename = data.get("input_filename", "input.json")
             logger.info(f"Running EST-SPT weighted scheduling with alpha={alpha}")
-            temp_input_file = self._create_temp_input_file(input_data)
+            # temp_input_file = self._create_temp_input_file(input_data)
             env = FjspMaEnv({
-                'train_or_eval_or_test': 'test',
-                'inputdata_json': temp_input_file
+                'inputdata_json': input_data
             })
             makespan, total_reward = est_spt_rule_weighted(env, alpha=alpha, verbose=False)
             output_path = self._create_output_path("est_spt_weighted", input_filename)
@@ -137,7 +135,7 @@ class WebSocketSchedulingProcessor:
             with open(output_path, 'r') as f:
                 output_data = json.load(f)
             execution_time = time.time() - start_time
-            self._cleanup_temp_file(temp_input_file)
+            # self._cleanup_temp_file(temp_input_file)
             logger.info(f"EST-SPT weighted scheduling completed in {execution_time:.2f}s, makespan: {makespan}")
             return {
                 "algorithm": "est_spt_weighted",
@@ -165,13 +163,12 @@ class WebSocketSchedulingProcessor:
             input_data = data.get("input_data", {})
             input_filename = data.get("input_filename", "input.json")
             pop = data.get("pop", 100)
-            gen = data.get("gen", 20)
+            gen = data.get("gen", 30)
             seed = data.get("seed", None)
             logger.info(f"Running GA scheduling with alpha={alpha}, pop={pop}, gen={gen}, seed={seed}")
-            temp_input_file = self._create_temp_input_file(input_data)
+            # temp_input_file = self._create_temp_input_file(input_data)
             env = GA_FjspMaEnv({
-                'train_or_eval_or_test': 'test',
-                'inputdata_json': temp_input_file
+                'inputdata_json': input_data
             })
             config = GAConfig(population_size=pop, generations=gen, alpha=alpha, seed=seed)
             ga = GAScheduler(env, config)
@@ -182,7 +179,7 @@ class WebSocketSchedulingProcessor:
             with open(output_path, 'r') as f:
                 output_data = json.load(f)
             execution_time = time.time() - start_time
-            self._cleanup_temp_file(temp_input_file)
+            # self._cleanup_temp_file(temp_input_file)
             logger.info(f"GA scheduling completed in {execution_time:.2f}s, makespan: {makespan}")
             return {
                 "algorithm": "ga",

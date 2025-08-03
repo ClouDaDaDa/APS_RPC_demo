@@ -190,6 +190,7 @@ class FjspMaEnv(MultiAgentEnv):
         if inputdata_json is None:
             raise ValueError("FjspMaEnv requires 'inputdata_json' in env_config to load the scheduling instance input data.")
 
+        self.inputdata_json = inputdata_json
         self.load_from_inputdata(inputdata_json)
 
         # ------ instance size parameters & machine id mapping ------ #
@@ -550,7 +551,7 @@ class FjspMaEnv(MultiAgentEnv):
                 task_id=self.prcs_task_id,
                 machine_id=machine_id  # 真实machine_id
             )
-            print(prcs_result)
+            # print(prcs_result)
 
             self.env_current_time = max(self.machine_features[:self.n_machines,3])
             for job_id in range(self.n_jobs):
@@ -968,7 +969,7 @@ class FjspMaEnv(MultiAgentEnv):
         with open(output_path, "w", encoding="utf-8") as f:
             import json
             json.dump(output_data, f, indent=2, ensure_ascii=False)
-        print(f"Scheduling result saved to {output_path}")
+        # print(f"Scheduling result saved to {output_path}")
 
 
 

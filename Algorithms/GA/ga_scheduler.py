@@ -46,10 +46,12 @@ class GAScheduler:
         self.n_machines = env.n_machines
         self.job_priority = np.array(env.job_priority)
         # record available machines for each operation
-        self.op_machine_choices = []  # [(job_id, op_id, [machine_ids])]
+        self.op_machine_choices = []  # [list of machine action indices for each operation]
         for job_id, job in enumerate(env.jobs):
             for op_id, op in enumerate(job.operations):
-                eligible = [env.machine_id_to_index[em.machine_id] for em in op.eligible_machines]
+                ws_id = str(op.process_workstation)
+                ws_obj = env.workstation_id_to_obj[ws_id]
+                eligible = [env.machine_id_to_action_index[str(m.machine_id)] for m in ws_obj.machines]
                 self.op_machine_choices.append(eligible)
         # global operation index to (job_id, op_id)
         self.op_global_to_local = []
@@ -120,8 +122,8 @@ class GAScheduler:
         return population
 
     def fitness(self, chrom: Chromosome):
-        inputdata_json = self.env.inputdata_json if hasattr(self.env, 'inputdata_json') else 'Data/InputData/input_data_example_W3_O3_P10.json'
-        env = FjspMaEnv({'train_or_eval_or_test': 'test', 'inputdata_json': inputdata_json})
+        inputdata_json = self.env.inputdata_json if hasattr(self.env, 'inputdata_json') else None
+        env = FjspMaEnv({'inputdata_json': inputdata_json})
         obs, info = env.reset()
         # force all job arrival times to be 0
         env.job_arrival_time = [0 for _ in env.job_arrival_time]
@@ -273,10 +275,10 @@ if __name__ == '__main__':
     import argparse
     import json
     parser = argparse.ArgumentParser(description='GA Scheduler for FJSP with Priority')
-    parser.add_argument('--input', type=str, default='Data/InputData/input_data_example_W3_O3_P10.json')
+    parser.add_argument('--input', type=str, default='Data/InputData/input_test_generated.json')
     parser.add_argument('--output', type=str, default='Data/OutputData/output_data_GA_example.json')
     parser.add_argument('--pop', type=int, default=100)
-    parser.add_argument('--gen', type=int, default=20)
+    parser.add_argument('--gen', type=int, default=30)
     parser.add_argument('--alpha', type=float, default=0.7)
     parser.add_argument('--seed', type=int, default=None)
     parser.add_argument('--test_rule', action='store_true', help='Test rule-based chromosome decoding')
@@ -284,7 +286,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.input = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-                             'Data', 'InputData', 'input_data_example_W3_O3_P10.json')
+                             'Data', 'InputData', 'input_test_1.json')
 
     # load environment
     with open(args.input, 'r') as f:

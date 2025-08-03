@@ -224,13 +224,12 @@ class WebSocketSchedulingClient:
     
     async def est_eet_weighted_scheduling(self, input_data: Dict[str, Any], 
                                         alpha: float = 0.7, 
-                                        input_filename: str = "input.json") -> Dict[str, Any]:
+                                        ) -> Dict[str, Any]:
         """Run EST-EET weighted scheduling algorithm"""
         try:
             request_data = {
                 "algorithm": "est_eet_weighted",
                 "input_data": input_data,
-                "input_filename": input_filename,
                 "alpha": alpha
             }
             
@@ -254,6 +253,64 @@ class WebSocketSchedulingClient:
             logger.error(f"Error in EST-EET weighted scheduling: {e}")
             return {"error": str(e)}
     
+    async def est_spt_weighted_scheduling(self, input_data: Dict[str, Any], 
+                                        alpha: float = 0.7, 
+                                        ) -> Dict[str, Any]:
+        """Run EST-SPT weighted scheduling algorithm"""
+        try:
+            request_data = {
+                "algorithm": "est_spt_weighted",
+                "input_data": input_data,
+                "alpha": alpha
+            }
+            message = create_request_message(
+                MessageType.SCHEDULING_REQUEST,
+                request_data,
+                f"scheduling_{int(time.time())}"
+            )
+            logger.info(f"Running EST-SPT weighted scheduling with alpha={alpha}...")
+            start_time = time.time()
+            response = await self.send_message(message)
+            execution_time = time.time() - start_time
+            logger.info(f"EST-SPT weighted scheduling completed in {execution_time:.2f} seconds")
+            return response.data
+        except Exception as e:
+            logger.error(f"Error in EST-SPT weighted scheduling: {e}")
+            return {"error": str(e)}
+
+    async def ga_scheduling(self, input_data: Dict[str, Any], 
+                          alpha: float = 0.7, 
+                          population_size: int = 100, 
+                          generations: int = 30, 
+                          crossover_rate: float = 0.8, 
+                          mutation_rate: float = 0.1
+                          ) -> Dict[str, Any]:
+        """Run Genetic Algorithm (GA) scheduling algorithm"""
+        try:
+            request_data = {
+                "algorithm": "ga",
+                "input_data": input_data,
+                "alpha": alpha,
+                "population_size": population_size,
+                "generations": generations,
+                "crossover_rate": crossover_rate,
+                "mutation_rate": mutation_rate
+            }
+            message = create_request_message(
+                MessageType.SCHEDULING_REQUEST,
+                request_data,
+                f"scheduling_{int(time.time())}"
+            )
+            logger.info(f"Running GA scheduling with alpha={alpha}, population_size={population_size}, generations={generations}, crossover_rate={crossover_rate}, mutation_rate={mutation_rate}...")
+            start_time = time.time()
+            response = await self.send_message(message)
+            execution_time = time.time() - start_time
+            logger.info(f"GA scheduling completed in {execution_time:.2f} seconds")
+            return response.data
+        except Exception as e:
+            logger.error(f"Error in GA scheduling: {e}")
+            return {"error": str(e)}
+    
     async def __aenter__(self):
         """Async context manager entry"""
         await self.connect()
@@ -265,74 +322,14 @@ class WebSocketSchedulingClient:
 
 async def demo_scheduling_client():
     """Demo function showing how to use the WebSocket scheduling client"""
-    
-    # Example input data
-    example_input = {
-        "scheduling_instance": {
-            "instance_id": "DEMO_W2_O2_P2",
-            "workshop": {
-                "workshop_id": "WSHOP1",
-                "workstations": [
-                    {
-                        "workstation_id": "WS1",
-                        "capacity": {"buffer_capacity": 1000},
-                        "machines": [
-                            {
-                                "machine_id": "M1",
-                                "capacity": {"max_parallel_jobs": 1},
-                                "availability": {
-                                    "status": "available",
-                                    "unavailable_periods": []
-                                }
-                            },
-                            {
-                                "machine_id": "M2",
-                                "capacity": {"max_parallel_jobs": 1},
-                                "availability": {
-                                    "status": "available",
-                                    "unavailable_periods": []
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "work_order": {
-                "work_order_id": "WO1",
-                "orders": [
-                    {
-                        "order_id": "O1",
-                        "order_priority": 3,
-                        "release_time": "2024-01-01T08:00:00",
-                        "due_date": "2024-01-01T18:00:00",
-                        "products": [
-                            {
-                                "product_id": "P1",
-                                "quantity": 2,
-                                "operations": [
-                                    {
-                                        "operation_id": "OP1",
-                                        "operation_sequence": 1,
-                                        "process_workstation": "WS1",
-                                        "eligible_machines": [
-                                            {
-                                                "machine_id": "M1",
-                                                "standard_duration": 2.0
-                                            },
-                                            {
-                                                "machine_id": "M2",
-                                                "standard_duration": 1.5
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    }
+
+    import json
+    import os
+    input_case_name = 'input_test_1.json'
+    input_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                              'Data', 'InputData', input_case_name)
+    with open(input_path, 'r') as f:
+        example_input = json.load(f)
     
     # Use async context manager for automatic connection/disconnection
     async with WebSocketSchedulingClient() as client:
@@ -346,13 +343,25 @@ async def demo_scheduling_client():
         
         # Run EST-EET weighted scheduling with different alpha values
         print("\n=== Running EST-EET Weighted Scheduling ===")
-        for alpha in [0.5, 0.7, 0.9]:
-            result = await client.est_eet_weighted_scheduling(
-                example_input, 
-                alpha=alpha, 
-                input_filename="demo_input.json"
-            )
-            print(f"Alpha={alpha}: {result}")
+        result = await client.est_eet_weighted_scheduling(
+            example_input,
+        )
+        print(f"EST-EET Weighted Scheduling Result: {result}")
+
+        # Run EST-SPT weighted scheduling with different alpha values
+        print("\n=== Running EST-SPT Weighted Scheduling ===")
+        result = await client.est_spt_weighted_scheduling(
+            example_input,
+        )
+        print(f"EST-SPT Weighted Scheduling Result: {result}")
+
+        # Run GA scheduling
+        print("\n=== Running GA Scheduling ===")
+        result = await client.ga_scheduling(
+            example_input,
+        )
+        print(f"GA Scheduling Result: {result}")
+
 
 if __name__ == '__main__':
     asyncio.run(demo_scheduling_client()) 

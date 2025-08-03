@@ -21,7 +21,7 @@ async def demo_with_real_data():
     """Demo using real input data"""
 
     # Use existing input file
-    input_file = "Data/InputData/input_data_example_W3_O3_P10.json"
+    input_file = "Data/InputData/input_test_generated.json"
     
     if not os.path.exists(input_file):
         print(f"Error: Input file {input_file} not found")
