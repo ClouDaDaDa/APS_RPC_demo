@@ -1,0 +1,93 @@
+{
+	"schedulingInstance": {
+		"workStation": [{
+			"id": 1,
+			"machineIds": [1, 3]
+		}, {
+			"id": 2,
+			"machineIds": [6, 7]
+		}],
+		"workTasks": [{
+			"id": 1,
+			"orderPriority": 3,
+			"products": [{
+				"productId": 5,
+				"quantity": 1
+			}, {
+				"productId": 3,
+				"quantity": 5
+			}]
+		}, {
+			"id": 2,
+			"orderPriority": 1,
+			"products": [{
+				"productId": 5,
+				"quantity": 1
+			}, {
+				"productId": 4,
+				"quantity": 10
+			}, {
+				"productId": 3,
+				"quantity": 8
+			}]
+		}, {
+			"id": 3,
+			"orderPriority": 4,
+			"products": [{
+				"productId": 4,
+				"quantity": 1
+			}, {
+				"productId": 3,
+				"quantity": 1
+			}, {
+				"productId": 5,
+				"quantity": 1
+			}]
+		}, {
+			"id": 4,
+			"orderPriority": 2,
+			"products": [{
+				"productId": 3,
+				"quantity": 5
+			}, {
+				"productId": 4,
+				"quantity": 4
+			}]
+		}],
+		"operation": {
+			"3": [{
+				"id": 59,
+				"operationSequence": 1,
+				"standardTime": 1.00,
+				"workstationIdList": [1]
+			}, {
+				"id": 60,
+				"operationSequence": 2,
+				"standardTime": 1.00,
+				"workstationIdList": [2]
+			}],
+			"4": [{
+				"id": 59,
+				"operationSequence": 1,
+				"standardTime": 1.00,
+				"workstationIdList": [1]
+			}, {
+				"id": 60,
+				"operationSequence": 2,
+				"standardTime": 1.00,
+				"workstationIdList": [2]
+			}],
+			"5": [{
+				"id": 59,
+				"operationSequence": 1,
+				"standardTime": 1.00,
+				"workstationIdList": [1]
+			}, {
+				"id": 60,
+				"operationSequence": 2,
+				"standardTime": 1.00,
+				"workstationIdList": [2]
+			}]
+		}
+	}
+}
