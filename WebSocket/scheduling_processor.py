@@ -102,10 +102,10 @@ class WebSocketSchedulingProcessor:
                 "algorithm": "est_eet_weighted",
                 "status": "success",
                 "makespan": makespan,
-                "execution_time": execution_time,
+                "executionTime": execution_time,
                 "timestamp": datetime.now().isoformat(),
-                "output_file": output_path,
-                "output_data": output_data
+                # "output_file": output_path,
+                "outputData": output_data
             }
             
         except Exception as e:
@@ -141,10 +141,10 @@ class WebSocketSchedulingProcessor:
                 "algorithm": "est_spt_weighted",
                 "status": "success",
                 "makespan": makespan,
-                "execution_time": execution_time,
+                "executionTime": execution_time,
                 "timestamp": datetime.now().isoformat(),
-                "output_file": output_path,
-                "output_data": output_data
+                # "output_file": output_path,
+                "outputData": output_data
             }
         except Exception as e:
             logger.error(f"EST-SPT weighted scheduling error: {e}")
@@ -185,10 +185,10 @@ class WebSocketSchedulingProcessor:
                 "algorithm": "ga",
                 "status": "success",
                 "makespan": makespan,
-                "execution_time": execution_time,
+                "executionTime": execution_time,
                 "timestamp": datetime.now().isoformat(),
-                "output_file": output_path,
-                "output_data": output_data
+                # "outputTile": output_path,
+                "outputData": output_data
             }
         except Exception as e:
             logger.error(f"GA scheduling error: {e}")
