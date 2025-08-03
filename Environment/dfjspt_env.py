@@ -320,11 +320,12 @@ class FjspMaEnv(MultiAgentEnv):
             n_operations_for_jobs = []
             job_id_counter = 0
             product_types = self.scheduling_instance.product_types
+            num_orders = len(self.scheduling_instance.work_tasks.orders)
             for order in self.scheduling_instance.work_tasks.orders:
                 order_id = order.order_id
                 planned_start = order.release_time
                 planned_end = order.due_date
-                priority = order.order_priority
+                priority = num_orders + 1 - order.order_priority
                 for product in order.products:
                     product_id = product.product_id
                     quantity = int(product.quantity)

@@ -325,7 +325,7 @@ async def demo_scheduling_client():
 
     import json
     import os
-    input_case_name = 'input_test_1.json'
+    input_case_name = 'input_test_2.json'
     input_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                               'Data', 'InputData', input_case_name)
     with open(input_path, 'r') as f:

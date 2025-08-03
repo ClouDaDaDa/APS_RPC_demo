@@ -78,6 +78,8 @@ class WebSocketSchedulingServer:
                     # Parse incoming message
                     message_data = json.loads(message)
                     ws_message = WebSocketMessage.from_dict(message_data)
+                    # print(message)
+                    # print(message_data)
                     
                     logger.debug(f"Received message: {ws_message.message_type} from {websocket.remote_address}")
                     
