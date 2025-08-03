@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import sys
+import random
 
 # add project root to python path
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -40,7 +41,11 @@ def est_spt_rule(env, verbose=False):
         else:
             # Select machine with shortest processing time (SPT)
             processing_times = machine_features[available_machines, 5]
-            machine_action = available_machines[np.argmin(processing_times)]
+            min_processing_time = np.min(processing_times)
+            # Find all machines with the minimum processing time
+            min_time_machines = available_machines[processing_times == min_processing_time]
+            # Randomly select from machines with minimum processing time
+            machine_action = random.choice(min_time_machines)
         action = {'agent1': machine_action}
         obs, reward, terminated, truncated, info = env.step(action)
         total_reward += reward['agent1']
@@ -84,7 +89,11 @@ def est_spt_rule_weighted(env, alpha=0.7, verbose=False):
         else:
             # Select machine with shortest processing time (SPT)
             processing_times = machine_features[available_machines, 5]
-            machine_action = available_machines[np.argmin(processing_times)]
+            min_processing_time = np.min(processing_times)
+            # Find all machines with the minimum processing time
+            min_time_machines = available_machines[processing_times == min_processing_time]
+            # Randomly select from machines with minimum processing time
+            machine_action = random.choice(min_time_machines)
         action = {'agent1': machine_action}
         obs, reward, terminated, truncated, info = env.step(action)
         total_reward += reward['agent1']
@@ -93,7 +102,8 @@ def est_spt_rule_weighted(env, alpha=0.7, verbose=False):
 
 if __name__ == '__main__':
     import json
-    input_case_name = 'input_test_1.json'
+    # input_case_name = 'input_test_1.json'
+    input_case_name = 'input_test_generated.json'
     input_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
                              'Data', 'InputData', input_case_name)
     with open(input_path, 'r') as f:
