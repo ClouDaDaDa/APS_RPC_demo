@@ -62,7 +62,7 @@ class GAScheduler:
         self.inputdata_json = getattr(env, 'inputdata_json', None)
 
     def heuristic_chromosome(self):
-        env = FjspMaEnv({'train_or_eval_or_test': 'test', 'inputdata_json': self.inputdata_json})
+        env = FjspMaEnv({'inputdata_json': self.inputdata_json})
         obs, info = env.reset()
         env.job_arrival_time = [0 for _ in env.job_arrival_time]
         for job_id in range(env.n_jobs):
@@ -271,6 +271,7 @@ class GAScheduler:
 
 if __name__ == '__main__':
     import argparse
+    import json
     parser = argparse.ArgumentParser(description='GA Scheduler for FJSP with Priority')
     parser.add_argument('--input', type=str, default='Data/InputData/input_data_example_W3_O3_P10.json')
     parser.add_argument('--output', type=str, default='Data/OutputData/output_data_GA_example.json')
@@ -286,7 +287,9 @@ if __name__ == '__main__':
                              'Data', 'InputData', 'input_data_example_W3_O3_P10.json')
 
     # load environment
-    env = FjspMaEnv({'train_or_eval_or_test': 'test', 'inputdata_json': args.input})
+    with open(args.input, 'r') as f:
+        input_data_json = json.load(f)
+    env = FjspMaEnv({'inputdata_json': input_data_json})
     config = GAConfig(population_size=args.pop, generations=args.gen, alpha=args.alpha, seed=args.seed)
     ga = GAScheduler(env, config)
 

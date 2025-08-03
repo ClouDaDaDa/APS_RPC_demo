@@ -7,7 +7,6 @@ import networkx as nx
 import random
 from Environment import dfjspt_params
 from Environment.factory_data_classes import JobData
-from Environment.parse_inputdata_to_factory import parse_inputdata_to_factory
 import json
 import datetime
 
@@ -182,24 +181,30 @@ class FjspMaEnv(MultiAgentEnv):
         super().__init__()
 
         self.scheduling_instance = None
-        self.jobs: List[JobData] = []
-        self.machine_info = []
-        self.machine_id_to_index = {}
+        self.jobs = []
         self.job_arrival_time = []
         self.job_due_date = []
+        self.job_priority = []
         self.n_operations_for_jobs = []
         inputdata_json = env_config.get("inputdata_json", None)
         if inputdata_json is None:
             raise ValueError("FjspMaEnv requires 'inputdata_json' in env_config to load the scheduling instance input data.")
-        self.inputdata_json = inputdata_json
+
         self.load_from_inputdata(inputdata_json)
 
-        # ------ instance size parameters ------ #
+        # ------ instance size parameters & machine id mapping ------ #
+        # 收集所有machine_id，顺序即为动作空间顺序
+        machine_ids = []
+        for ws in self.scheduling_instance.workshop.workstations:
+            for machine in ws.machines:
+                # machine_id为字符串，确保类型一致
+                machine_ids.append(str(machine.machine_id))
+        self.action_index_to_machine_id = machine_ids  # list: action_index -> machine_id
+        self.machine_id_to_action_index = {mid: idx for idx, mid in enumerate(machine_ids)}  # dict: machine_id -> action_index
+        self.n_machines = len(machine_ids)
         self.n_jobs = len(self.jobs)
-        self.n_operations_for_jobs = [len(job.operations) for job in self.jobs]
         self.max_n_operations = max(self.n_operations_for_jobs) if self.n_operations_for_jobs else 0
         self.min_n_operations = min(self.n_operations_for_jobs) if self.n_operations_for_jobs else 0
-        self.n_machines = len(self.machine_info)
         self.n_total_tasks = sum(self.n_operations_for_jobs) + 2
         self.n_total_nodes = self.n_total_tasks + self.n_machines
         self.n_processing_tasks = None
@@ -300,32 +305,74 @@ class FjspMaEnv(MultiAgentEnv):
                 },
             }
 
-    def load_from_inputdata(self, json_path):
-        self.scheduling_instance = parse_inputdata_to_factory(json_path)
-        # Extract jobs from work_order
-        self.jobs = self.scheduling_instance.work_order.to_jobs()
-        self.n_jobs = len(self.jobs)
-        self.n_operations_for_jobs = [len(job.operations) for job in self.jobs]
-        # For arrival/due times, use order-level info for all jobs in that order
-        order_id_to_times = {}
-        order_id_to_priority = {}
-        for order in self.scheduling_instance.work_order.orders:
-            order_id_to_times[order.order_id] = {
-                "release_time": order.release_time,
-                "due_date": order.due_date
-            }
-            order_id_to_priority[order.order_id] = order.order_priority
-        self.job_arrival_time = [order_id_to_times[job.order_id]["release_time"] for job in self.jobs]
-        self.job_due_date = [order_id_to_times[job.order_id]["due_date"] for job in self.jobs]
-        # Store job priority for each job (for weighted scheduling)
-        self.job_priority = [order_id_to_priority[job.order_id] for job in self.jobs]
-        # Machine info: flatten all machines in all workstations
-        self.machine_info = []
-        for ws in self.scheduling_instance.workshop.workstations:
-            for m in ws.machines:
-                self.machine_info.append(m)
-        self.n_machines = len(self.machine_info)
-        self.machine_id_to_index = {m.machine_id: idx for idx, m in enumerate(self.machine_info)}
+    def load_from_inputdata(self, input_data_json):
+        if "schedulingInstance" in input_data_json:
+            from Environment.factory_data_classes import SchedulingInstanceData, OperationData
+
+            self.scheduling_instance = SchedulingInstanceData.from_dict(input_data_json["schedulingInstance"])
+
+            # Build jobs
+            jobs = []
+            job_arrival_time = []
+            job_due_date = []
+            job_priority = []
+            n_operations_for_jobs = []
+            job_id_counter = 0
+            product_types = self.scheduling_instance.product_types
+            for order in self.scheduling_instance.work_tasks.orders:
+                order_id = order.order_id
+                planned_start = order.release_time
+                planned_end = order.due_date
+                priority = order.order_priority
+                for product in order.products:
+                    product_id = product.product_id
+                    quantity = int(product.quantity)
+                    product_type = next((pt for pt in product_types if pt.product_id == str(product_id)), None)
+                    if product_type is None:
+                        raise ValueError(f"Product type {product_id} not found")
+
+                    for i in range(quantity):
+                        # For each operation, store process_workstation as string id, and standard_duration
+                        operations = []
+                        for op in product_type.operations:
+                            operations.append(type('SimpleOperation', (), {
+                                'operation_id': op.operation_id,
+                                'operation_sequence': op.operation_sequence,
+                                'process_workstation': str(op.process_workstation),
+                                'standard_duration': getattr(op, 'standard_duration', 1.0)  # default 1.0 if not present
+                            }))
+                        job = JobData(
+                            job_id=job_id_counter,
+                            product_id=product_id,
+                            order_id=order_id,
+                            operations=operations
+                        )
+                        jobs.append(job)
+                        job_arrival_time.append(planned_start)
+                        job_due_date.append(planned_end)
+                        job_priority.append(priority)
+                        n_operations_for_jobs.append(len(operations))
+                        job_id_counter += 1
+
+            self.jobs = jobs
+            self.n_operations_for_jobs = n_operations_for_jobs
+            self.job_arrival_time = job_arrival_time
+            self.job_due_date = job_due_date
+            self.job_priority = job_priority
+
+            # Build machine and workstation mappings
+            machine_ids = []
+            workstation_id_to_obj = {}
+            for ws in self.scheduling_instance.workshop.workstations:
+                workstation_id_to_obj[str(ws.workstation_id)] = ws
+                for machine in ws.machines:
+                    machine_ids.append(str(machine.machine_id))
+            self.action_index_to_machine_id = machine_ids  # list: action_index -> machine_id
+            self.machine_id_to_action_index = {mid: idx for idx, mid in enumerate(machine_ids)}  # dict: machine_id -> action_index
+            self.n_machines = len(machine_ids)
+            self.workstation_id_to_obj = workstation_id_to_obj
+        else:
+            raise ValueError("Unknown input data format")
 
     def reset(self, seed=None, options=None):
         self.resetted = True
@@ -335,11 +382,8 @@ class FjspMaEnv(MultiAgentEnv):
         assert self.scheduling_instance is not None, "Scheduling instance must be loaded before reset."
 
         # Use loaded scheduling_instance to initialize all arrays
-        self.n_jobs = len(self.jobs)
-        self.n_operations_for_jobs = [len(job.operations) for job in self.jobs]
         self.max_n_operations = max(self.n_operations_for_jobs) if self.n_operations_for_jobs else 0
         self.min_n_operations = min(self.n_operations_for_jobs) if self.n_operations_for_jobs else 0
-        self.n_machines = len(self.machine_info)
         self.n_total_tasks = sum(self.n_operations_for_jobs) + 2
         self.n_total_nodes = self.n_total_tasks + self.n_machines
 
@@ -360,17 +404,17 @@ class FjspMaEnv(MultiAgentEnv):
         self.job_features = np.zeros((self.n_jobs, self.n_job_features), dtype=float)
         for job_id in range(self.n_jobs):
             self.job_features[job_id, 0] = job_id
-        # Example: fill in arrival time, due date, etc. (customize as needed)
+        # fill in arrival time, due date, etc. 
         for job_id in range(self.n_jobs):
             self.job_features[job_id, 2] = self.job_arrival_time_float[job_id]
             self.job_features[job_id, 3] = self.n_machines
         self.job_features[self.n_jobs:, 4] = 1
-        # Optionally fill in more features as needed
+        # Optionally fill in more features
 
         self.machine_features = np.zeros((self.n_machines, self.n_machine_features), dtype=float)
         for machine_id in range(self.n_machines):
             self.machine_features[machine_id, 0] = machine_id
-        # Optionally fill in more features as needed
+        # Optionally fill in more features
         self.machine_features[:self.n_machines, 5:] = -1
 
         # Action masks
@@ -381,7 +425,7 @@ class FjspMaEnv(MultiAgentEnv):
         self.machine_action_mask = np.zeros((self.n_machines,), dtype=int)
         self.machine_action_mask[:self.n_machines] = 1
 
-        # Reset other environment state as needed
+        # Reset other environment state
         self.prev_cmax = 0
         self.curr_cmax = 0
         self.reward_this_step = 0.0
@@ -393,21 +437,11 @@ class FjspMaEnv(MultiAgentEnv):
         self.mean_processing_time_of_operations = np.zeros(shape=(self.n_jobs, self.max_n_operations), dtype=float)
         for job_id in range(self.n_jobs):
             for operation_id in range(self.n_operations_for_jobs[job_id]):
-                # Here, you may want to use the operation's eligible_machines and durations from self.jobs
                 op = self.jobs[job_id].operations[operation_id]
-                durations = [em.standard_duration for em in op.eligible_machines]
-                self.mean_processing_time_of_operations[job_id][operation_id] = np.mean(durations) if durations else 0.0
-        self.mean_cumulative_processing_time_of_jobs = np.cumsum(self.mean_processing_time_of_operations, axis=1)
+                self.mean_processing_time_of_operations[job_id][operation_id] = op.standard_duration
+        # self.mean_cumulative_processing_time_of_jobs = np.cumsum(self.mean_processing_time_of_operations, axis=1)
         self.makespan_baseline = 1.5 * self.n_jobs * self.n_machines * self.mean_processing_time_of_operations.max()
 
-        # # generate colors for machines
-        # c_map1 = plt.cm.get_cmap(self.c_map1)
-        # arr1 = np.linspace(0, 1, self.n_machines, dtype=float)
-        # self.machine_colors = {m_id: c_map1(val) for m_id, val in enumerate(arr1)}
-        # # generate colors for jobs
-        # c_map3 = plt.cm.get_cmap(self.c_map3)
-        # arr3 = np.linspace(0, 1, self.n_jobs, dtype=float)
-        # self.job_colors = {j_id: c_map3(val) for j_id, val in enumerate(arr3)}
         self.initialize_disjunctive_graph(self.n_operations_for_jobs)
         self.machine_routes = {m_id: np.empty((0, 2), dtype=int) for m_id in range(self.n_machines)}
 
@@ -418,7 +452,7 @@ class FjspMaEnv(MultiAgentEnv):
     def step(self, action):
         observations, reward, terminated, truncated, info = {}, {}, {}, {}, {}
         self.reward_this_step = 0.0
-        # 初始化所有agent的reward/terminated/truncated为0/False
+
         for agent in self.agents:
             reward[agent] = 0.0
             terminated[agent] = False
@@ -484,7 +518,11 @@ class FjspMaEnv(MultiAgentEnv):
             # agent1 reward remains 0
 
         else:
-            self.chosen_machine = action["agent1"]
+            # agent1选择机器
+            # action['agent1']为动作空间索引，需映射为真实machine_id
+            action_index = action["agent1"]
+            self.chosen_machine = action_index
+            machine_id = self.action_index_to_machine_id[action_index]  # 真实machine_id（字符串）
 
             # invalid machine_id
             if self.chosen_machine >= self.n_machines or self.chosen_machine < 0 or self.machine_features[self.chosen_machine, 5] <= 0:
@@ -505,12 +543,14 @@ class FjspMaEnv(MultiAgentEnv):
                 truncated["__all__"] = False
                 return observations, reward, terminated, truncated, info
 
+            # 传递真实machine_id给调度函数
             prcs_result = self._schedule_prcs_task(
                 job_id=self.chosen_job,
                 operation_id=self.operation_id,
                 task_id=self.prcs_task_id,
-                machine_id=self.chosen_machine
+                machine_id=machine_id  # 真实machine_id
             )
+            print(prcs_result)
 
             self.env_current_time = max(self.machine_features[:self.n_machines,3])
             for job_id in range(self.n_jobs):
@@ -577,10 +617,13 @@ class FjspMaEnv(MultiAgentEnv):
     # *********************************
     # Schedule An Processing Task
     # *********************************
-    def _schedule_prcs_task(self, job_id: int, task_id: int, operation_id: int, machine_id: int) -> dict:
+    def _schedule_prcs_task(self, job_id: int, task_id: int, operation_id: int, machine_id: str) -> dict:
         """
         schedules a process task/node in the graph representation if the task can be scheduled.
+        machine_id为真实machine_id（字符串），如需访问数组下标，需用self.machine_id_to_action_index[machine_id]映射为索引
         """
+        # machine_id为真实id，需转为索引
+        machine_index = self.machine_id_to_action_index[machine_id]
         if self.Graph.nodes[task_id]["node_type"] != "operation" or \
                 job_id != self.Graph.nodes[task_id]["job_id"] or \
                 self.Graph.nodes[task_id]["operation_id"] != self.job_features[job_id][1]:
@@ -588,7 +631,7 @@ class FjspMaEnv(MultiAgentEnv):
                 "schedule_success": False,
             }
 
-        if machine_id < 0 or machine_id >= self.n_machines:
+        if machine_index < 0 or machine_index >= self.n_machines:
             return {
                 "schedule_success": False,
             }
@@ -596,23 +639,22 @@ class FjspMaEnv(MultiAgentEnv):
         new_task = np.array([[job_id, operation_id]], dtype=int)
         previous_operation_finish_time = float(self.job_features[job_id][2])
 
-        # expected_duration = self.jobs[job_id].operations_matrix[self.Graph.nodes[task_id]["operation_id"], machine_id]
-        expected_duration = self.get_operation_duration(job_id, operation_id, machine_id)
+        expected_duration = self.get_operation_duration(job_id, operation_id, machine_index)
         expected_duration = expected_duration * dfjspt_params.prcs_time_factor
         if expected_duration <= 0:
             return {
                 "schedule_success": False,
             }
-        if self.machine_quality[0, machine_id] > 0:
-            if random.random() <= self.machine_quality[0, machine_id]:
+        if self.machine_quality[0, machine_index] > 0:
+            if random.random() <= self.machine_quality[0, machine_index]:
                 actual_duration = int(expected_duration)
             else:
                 actual_duration = int(random.uniform(expected_duration,
-                                                 expected_duration / self.machine_quality[0, machine_id]))
+                                                 expected_duration / self.machine_quality[0, machine_index]))
         else:
             actual_duration = 999
 
-        len_machine_routes = len(self.machine_routes[machine_id])
+        len_machine_routes = len(self.machine_routes[machine_index])
         if len_machine_routes:
             if self.perform_left_shift_if_possible:
                 j_lower_bound_st = previous_operation_finish_time
@@ -620,11 +662,11 @@ class FjspMaEnv(MultiAgentEnv):
 
                 # check if task can be scheduled between src and first task
                 machine_first_task_start_time = self.result_start_time_for_jobs[
-                    self.machine_routes[machine_id][0][0],
-                    self.machine_routes[machine_id][0][1], 1]
+                    self.machine_routes[machine_index][0][0],
+                    self.machine_routes[machine_index][0][1], 1]
 
                 if j_lower_bound_ft <= machine_first_task_start_time:
-                    self.machine_routes[machine_id] = np.insert(self.machine_routes[machine_id], 0, new_task, axis=0)
+                    self.machine_routes[machine_index] = np.insert(self.machine_routes[machine_index], 0, new_task, axis=0)
                     start_time = previous_operation_finish_time
                     finish_time = start_time + actual_duration
 
@@ -632,12 +674,12 @@ class FjspMaEnv(MultiAgentEnv):
                     self.result_finish_time_for_jobs[job_id, self.Graph.nodes[task_id]["operation_id"], 1] = finish_time
                     self.Graph.nodes[task_id]["m_start_time"] = start_time
                     self.Graph.nodes[task_id]["m_finish_time"] = finish_time
-                    self.Graph.nodes[task_id]["machine_id"] = machine_id
-                    self.machine_features[machine_id][2] += 1
-                    last_task_in_route = self.machine_routes[machine_id][-1]
+                    self.Graph.nodes[task_id]["machine_id"] = machine_id  # 记录真实machine_id
+                    self.machine_features[machine_index][2] += 1
+                    last_task_in_route = self.machine_routes[machine_index][-1]
                     machine_last_finish_time = self.result_finish_time_for_jobs[last_task_in_route[0], last_task_in_route[1], 1]
-                    self.machine_features[machine_id][3] = machine_last_finish_time
-                    self.machine_features[machine_id][4] += actual_duration
+                    self.machine_features[machine_index][3] = machine_last_finish_time
+                    self.machine_features[machine_index][4] += actual_duration
 
                     self.job_features[job_id][1] += 1
                     self.job_features[job_id][2] = finish_time
@@ -661,8 +703,8 @@ class FjspMaEnv(MultiAgentEnv):
                     }
 
                 elif len_machine_routes == 1:
-                    self.machine_routes[machine_id] = np.append(self.machine_routes[machine_id], new_task, axis=0)
-                    machine_previous_task_finish_time = float(self.machine_features[machine_id, 3])
+                    self.machine_routes[machine_index] = np.append(self.machine_routes[machine_index], new_task, axis=0)
+                    machine_previous_task_finish_time = float(self.machine_features[machine_index, 3])
                     start_time = max(previous_operation_finish_time, machine_previous_task_finish_time)
                     finish_time = start_time + actual_duration
 
@@ -670,10 +712,10 @@ class FjspMaEnv(MultiAgentEnv):
                     self.result_finish_time_for_jobs[job_id, self.Graph.nodes[task_id]["operation_id"], 1] = finish_time
                     self.Graph.nodes[task_id]["start_time"] = start_time
                     self.Graph.nodes[task_id]["finish_time"] = finish_time
-                    self.Graph.nodes[task_id]["machine_id"] = machine_id
-                    self.machine_features[machine_id][2] += 1
-                    self.machine_features[machine_id][3] = finish_time
-                    self.machine_features[machine_id][4] += actual_duration
+                    self.Graph.nodes[task_id]["machine_id"] = machine_id  # 记录真实machine_id
+                    self.machine_features[machine_index][2] += 1
+                    self.machine_features[machine_index][3] = finish_time
+                    self.machine_features[machine_index][4] += actual_duration
 
                     self.job_features[job_id][1] += 1
                     self.job_features[job_id][2] = finish_time
@@ -698,7 +740,7 @@ class FjspMaEnv(MultiAgentEnv):
 
                 # check if task can be scheduled between two tasks
                 for i, (m_prev, m_next) in enumerate(
-                        zip(self.machine_routes[machine_id], self.machine_routes[machine_id][1:])):
+                        zip(self.machine_routes[machine_index], self.machine_routes[machine_index][1:])):
                     m_temp_prev_ft = self.result_finish_time_for_jobs[m_prev[0], m_prev[1], 1]
                     m_temp_next_st = self.result_start_time_for_jobs[m_next[0], m_next[1], 1]
 
@@ -713,18 +755,18 @@ class FjspMaEnv(MultiAgentEnv):
                     start_time = max(j_lower_bound_st, m_temp_prev_ft)
                     finish_time = start_time + actual_duration
                     # insert task at the corresponding place in the machine routes list
-                    self.machine_routes[machine_id] = np.insert(self.machine_routes[machine_id], i + 1, new_task, axis=0)
+                    self.machine_routes[machine_index] = np.insert(self.machine_routes[machine_index], i + 1, new_task, axis=0)
 
                     self.result_start_time_for_jobs[job_id, self.Graph.nodes[task_id]["operation_id"], 1] = start_time
                     self.result_finish_time_for_jobs[job_id, self.Graph.nodes[task_id]["operation_id"], 1] = finish_time
                     self.Graph.nodes[task_id]["m_start_time"] = start_time
                     self.Graph.nodes[task_id]["m_finish_time"] = finish_time
-                    self.Graph.nodes[task_id]["machine_id"] = machine_id
-                    self.machine_features[machine_id][2] += 1
-                    last_task_in_route = self.machine_routes[machine_id][-1]
+                    self.Graph.nodes[task_id]["machine_id"] = machine_id  # 记录真实machine_id
+                    self.machine_features[machine_index][2] += 1
+                    last_task_in_route = self.machine_routes[machine_index][-1]
                     machine_last_finish_time = self.result_finish_time_for_jobs[last_task_in_route[0], last_task_in_route[1], 1]
-                    self.machine_features[machine_id][3] = machine_last_finish_time
-                    self.machine_features[machine_id][4] += actual_duration
+                    self.machine_features[machine_index][3] = machine_last_finish_time
+                    self.machine_features[machine_index][4] += actual_duration
 
                     self.job_features[job_id][1] += 1
                     self.job_features[job_id][2] = finish_time
@@ -747,18 +789,18 @@ class FjspMaEnv(MultiAgentEnv):
                         "finish_time": finish_time,
                     }
 
-                self.machine_routes[machine_id] = np.append(self.machine_routes[machine_id], new_task, axis=0)
-                machine_previous_task_finish_time = float(self.machine_features[machine_id, 3])
+                self.machine_routes[machine_index] = np.append(self.machine_routes[machine_index], new_task, axis=0)
+                machine_previous_task_finish_time = float(self.machine_features[machine_index, 3])
                 start_time = max(previous_operation_finish_time, machine_previous_task_finish_time)
                 finish_time = start_time + actual_duration
 
             else:
-                self.machine_routes[machine_id] = np.append(self.machine_routes[machine_id], new_task, axis=0)
-                machine_previous_task_finish_time = float(self.machine_features[machine_id, 3])
+                self.machine_routes[machine_index] = np.append(self.machine_routes[machine_index], new_task, axis=0)
+                machine_previous_task_finish_time = float(self.machine_features[machine_index, 3])
                 start_time = max(previous_operation_finish_time, machine_previous_task_finish_time)
                 finish_time = start_time + actual_duration
         else:
-            self.machine_routes[machine_id] = np.insert(self.machine_routes[machine_id], 0, new_task, axis=0)
+            self.machine_routes[machine_index] = np.insert(self.machine_routes[machine_index], 0, new_task, axis=0)
             start_time = previous_operation_finish_time
             finish_time = start_time + actual_duration
 
@@ -766,10 +808,10 @@ class FjspMaEnv(MultiAgentEnv):
         self.result_finish_time_for_jobs[job_id, self.Graph.nodes[task_id]["operation_id"], 1] = finish_time
         self.Graph.nodes[task_id]["m_start_time"] = start_time
         self.Graph.nodes[task_id]["m_finish_time"] = finish_time
-        self.Graph.nodes[task_id]["machine_id"] = machine_id
-        self.machine_features[machine_id][2] += 1
-        self.machine_features[machine_id][3] = finish_time
-        self.machine_features[machine_id][4] += actual_duration
+        self.Graph.nodes[task_id]["machine_id"] = machine_id  # 记录真实machine_id
+        self.machine_features[machine_index][2] += 1
+        self.machine_features[machine_index][3] = finish_time
+        self.machine_features[machine_index][4] += actual_duration
 
         self.job_features[job_id][1] += 1
         self.job_features[job_id][2] = finish_time
@@ -856,69 +898,77 @@ class FjspMaEnv(MultiAgentEnv):
                     )
 
     def get_operation_duration(self, job_id, operation_id, machine_id):
+        """
+        machine_id为动作空间索引（数字），需先用self.action_index_to_machine_id[machine_id]转为真实machine_id（字符串）
+        operation的process_workstation为字符串id
+        只要该machine属于该workstation即可，工时为operation.standard_duration
+        """
+        real_machine_id = self.action_index_to_machine_id[machine_id]
         op = self.jobs[job_id].operations[operation_id]
-        machine_id_str = self.machine_info[machine_id].machine_id
-        for em in op.eligible_machines:
-            if em.machine_id == machine_id_str:
-                return em.standard_duration
-        return -1
+        ws_obj = self.workstation_id_to_obj[str(op.process_workstation)]
+        # ws_obj.machines为machine对象列表
+        if any(str(m.machine_id) == real_machine_id for m in ws_obj.machines):
+            return op.standard_duration
+        else:
+            return -1
 
-    def build_and_save_output_json(self, output_path="Data/OutputData/output_data_example.json"):
+
+    def build_and_save_output_json(self, output_path="Data/OutputData/output_data_temp.json"):
         # Ensure output_path is absolute and under project root
         if not os.path.isabs(output_path):
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             output_path = os.path.join(project_root, output_path)
-        # Build output data structure as per Output Data Class Diagram
-        # 1. Algorithm info
-        algorithm_info = {
-            "algorithm_name": "FjspMaEnv",
-            "execution_time": float(getattr(self, 'execution_time', 0.0))
-        }
-        # 2. Schedule summary
-        schedule_summary = {
-            "total_makespan": float(self.final_makespan),
-            "schedule_start_time": str(getattr(self, 'schedule_start_time', datetime.datetime.now().isoformat())),
-            "schedule_end_time": str(getattr(self, 'schedule_end_time', datetime.datetime.now().isoformat())),
-        }
-        # 3. Gantt chart data
-        machine_timelines = []
-        for machine_id in range(self.n_machines):
-            timeline_bars = []
-            for route in self.machine_routes[machine_id]:
-                job_id, operation_id = route
-                job = self.jobs[job_id]
-                op = job.operations[operation_id]
-                # Find the start/end time for this operation on this machine
-                start_time = self.result_start_time_for_jobs[job_id, operation_id, 1]
-                end_time = self.result_finish_time_for_jobs[job_id, operation_id, 1]
-                timeline_bars.append({
-                    "operation_id": op.operation_id,
-                    "job_id": job.job_id,
-                    "product_id": job.product_id,
-                    "order_id": job.order_id,
-                    "start_time": float(start_time),
-                    "end_time": float(end_time)
-                })
-            machine_timelines.append({
-                "machine_id": self.machine_info[machine_id].machine_id,
-                "timeline_bars": timeline_bars
+
+        # 1. Collect order-level (workTask) start/end times
+        order_times = {}
+        for job_idx, job in enumerate(self.jobs):
+            order_id = job.order_id
+            for op_idx, op in enumerate(job.operations):
+                # Find the scheduled start/finish time for this operation
+                start_time = self.result_start_time_for_jobs[job_idx, op_idx, 1]
+                finish_time = self.result_finish_time_for_jobs[job_idx, op_idx, 1]
+                if order_id not in order_times:
+                    order_times[order_id] = {"plannedStart": start_time, "plannedEnd": finish_time}
+                else:
+                    order_times[order_id]["plannedStart"] = min(order_times[order_id]["plannedStart"], start_time)
+                    order_times[order_id]["plannedEnd"] = max(order_times[order_id]["plannedEnd"], finish_time)
+
+        workTasks = []
+        for order_id, times in order_times.items():
+            workTasks.append({
+                "id": order_id,
+                "plannedStart": times["plannedStart"],
+                "plannedEnd": times["plannedEnd"]
             })
-        gantt_chart_data = {
-            "machine_timelines": machine_timelines
-        }
-        # 4. Top-level output
+
+        # 2. Collect machine-level operation schedule (robust: iterate over Graph nodes)
+        machines = []
+        for machine_id in self.action_index_to_machine_id:
+            machine_dict = {"id": machine_id, "workTasks": []}
+            # Iterate over all Graph nodes to find operations scheduled on this machine
+            for node_key, node_data in self.Graph.nodes(data=True):
+                if node_data.get("node_type") == "operation" and node_data.get("machine_id") == machine_id:
+                    job_idx = node_data.get("job_id")
+                    op_idx = node_data.get("operation_id")
+                    order_id = self.jobs[job_idx].order_id
+                    start_time = node_data.get("m_start_time")
+                    finish_time = node_data.get("m_finish_time")
+                    machine_dict["workTasks"].append({
+                        "id": order_id,
+                        "plannedStart": start_time,
+                        "plannedEnd": finish_time
+                    })
+            machines.append(machine_dict)
+
         output_data = {
-            "scheduling_result": {
-                "instance_id": self.scheduling_instance.instance_id if self.scheduling_instance else "unknown",
-                "algorithm_info": algorithm_info,
-                "schedule_summary": schedule_summary,
-                "gantt_chart_data": gantt_chart_data
-            }
+            "workTasks": workTasks,
+            "machines": machines
         }
-        # Save to JSON
-        with open(output_path, "w") as f:
-            json.dump(output_data, f, indent=2)
-        # print(f"Scheduling result saved to {output_path}")
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            import json
+            json.dump(output_data, f, indent=2, ensure_ascii=False)
+        print(f"Scheduling result saved to {output_path}")
 
 
 

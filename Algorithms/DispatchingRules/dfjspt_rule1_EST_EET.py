@@ -90,18 +90,23 @@ def est_eet_rule_weighted(env, alpha=0.7, verbose=False):
     return env.final_makespan, total_reward
 
 if __name__ == '__main__':
-    input_case_name = 'input_data_example_W3_O3_P10.json'
+    import json
+    # input_case_name = 'input_data_example_W3_O3_P10.json'
+    input_case_name = 'input_test_1.json'
     input_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
                              'Data', 'InputData', input_case_name)
+    with open(input_path, 'r') as f:
+        input_data_json = json.load(f)
+        
     # Basic scheduling
-    env1 = FjspMaEnv({'train_or_eval_or_test': 'test', 'inputdata_json': input_path})
+    env1 = FjspMaEnv({'inputdata_json': input_data_json})
     env1.build_and_save_output_json = lambda output_path=None: FjspMaEnv.build_and_save_output_json(env1, output_path or 'Data/OutputData/output_EST_EET_' + input_case_name)
     makespan1, total_reward1 = est_eet_rule(env1, verbose=True)
     print(f"[Basic Rule] Makespan: {makespan1}, Total Reward: {total_reward1}")
     print("Basic scheduling output: Data/OutputData/output_EST_EET_" + input_case_name)
 
     # Priority-weighted scheduling
-    env2 = FjspMaEnv({'train_or_eval_or_test': 'test', 'inputdata_json': input_path})
+    env2 = FjspMaEnv({'inputdata_json': input_data_json})
     env2.build_and_save_output_json = lambda output_path=None: FjspMaEnv.build_and_save_output_json(env2, output_path or 'Data/OutputData/output_EST_EET_weighted_' + input_case_name)
     makespan2, total_reward2 = est_eet_rule_weighted(env2, alpha=0.7, verbose=True)
     print(f"[Priority-weighted Rule] Makespan: {makespan2}, Total Reward: {total_reward2}")
