@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import sys
+import random
 
 # add project root to python path
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -25,7 +26,11 @@ def est_eet_rule(env, verbose=False):
             job_action = 0  # fallback
         else:
             arrival_times = job_features[available_jobs, 2]
-            job_action = available_jobs[np.argmin(arrival_times)]
+            min_arrival_time = np.min(arrival_times)
+            # Find all jobs with the minimum arrival time
+            min_time_jobs = available_jobs[arrival_times == min_arrival_time]
+            # Randomly select from jobs with minimum arrival time
+            job_action = random.choice(min_time_jobs)
         action = {'agent0': job_action}
         obs, reward, terminated, truncated, info = env.step(action)
         total_reward += reward['agent0']
@@ -68,7 +73,12 @@ def est_eet_rule_weighted(env, alpha=0.7, verbose=False):
             norm_priority = priorities / (priorities.max() if priorities.max() > 0 else 1)
             norm_arrival = (arrival_times - arrival_times.min()) / (np.ptp(arrival_times) + 1e-6)
             score = alpha * norm_priority - (1 - alpha) * norm_arrival
-            job_action = available_jobs[np.argmax(score)]
+            # job_action = available_jobs[np.argmax(score)]
+            min_arrival_time = np.min(arrival_times)
+            # Find all jobs with the minimum arrival time
+            min_time_jobs = available_jobs[arrival_times == min_arrival_time]
+            # Randomly select from jobs with minimum arrival time
+            job_action = random.choice(min_time_jobs)
         action = {'agent0': job_action}
         obs, reward, terminated, truncated, info = env.step(action)
         total_reward += reward['agent0']

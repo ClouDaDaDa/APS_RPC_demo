@@ -44,7 +44,9 @@ def plot_machine_gantt(machines, save_path=None):
     yticks = []
     yticklabels = []
     legend_handles = {}
-    for i, machine in enumerate(sorted(machines, key=lambda x: str(x['id']))):
+    # Sort machines by id in ascending order
+    sorted_machines = sorted(machines, key=lambda x: int(x['id']))
+    for i, machine in enumerate(sorted_machines):
         yticks.append(i)
         yticklabels.append(str(machine['id']))
         for task in machine['workTasks']:
@@ -83,8 +85,10 @@ def plot_gantt_from_output(json_path):
 if __name__ == '__main__':
     json_path = os.path.join(
         os.path.dirname(__file__),
-        'output_EST_EET_weighted_input_test_1.json'
+        # 'output_EST_EET_weighted_input_test_1.json'
         # 'output_EST_EET_weighted_input_test_generated.json'
         # 'output_EST_SPT_weighted_input_test_1.json'
+        # 'output_EST_SPT_weighted_input_test_generated.json'
+        'output_EST_SPT_input_test_generated.json'
     )
     plot_gantt_from_output(json_path)
