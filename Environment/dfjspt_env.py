@@ -402,6 +402,26 @@ class FjspMaEnv(MultiAgentEnv):
             else:
                 self.job_arrival_time_float.append(0.0)
 
+        # Reset other environment state
+        self.prev_cmax = 0
+        self.curr_cmax = 0
+        self.reward_this_step = 0.0
+        self.schedule_done = False
+        self.stage = 0
+        self.machine_routes = {m_id: np.empty((0, 2), dtype=int) for m_id in range(self.n_machines)}
+        self.result_start_time_for_jobs = np.zeros(shape=(self.n_jobs, self.max_n_operations, 2), dtype=float)
+        self.result_finish_time_for_jobs = np.zeros(shape=(self.n_jobs, self.max_n_operations, 2), dtype=float)
+        self.mean_processing_time_of_operations = np.zeros(shape=(self.n_jobs, self.max_n_operations), dtype=float)
+        for job_id in range(self.n_jobs):
+            for operation_id in range(self.n_operations_for_jobs[job_id]):
+                op = self.jobs[job_id].operations[operation_id]
+                self.mean_processing_time_of_operations[job_id][operation_id] = op.standard_duration
+        self.mean_cumulative_processing_time_of_jobs = np.cumsum(self.mean_processing_time_of_operations, axis=1)
+        self.makespan_baseline = 1.5 * self.n_jobs * self.n_machines * self.mean_processing_time_of_operations.max()
+
+        self.initialize_disjunctive_graph(self.n_operations_for_jobs)
+        self.machine_routes = {m_id: np.empty((0, 2), dtype=int) for m_id in range(self.n_machines)}
+
         # Job and machine features arrays
         self.job_features = np.zeros((self.n_jobs, self.n_job_features), dtype=float)
         for job_id in range(self.n_jobs):
@@ -411,6 +431,8 @@ class FjspMaEnv(MultiAgentEnv):
             self.job_features[job_id, 2] = self.job_arrival_time_float[job_id]
             self.job_features[job_id, 3] = self.n_machines
         self.job_features[self.n_jobs:, 4] = 1
+        self.job_features[:self.n_jobs, 6] = self.mean_processing_time_of_operations[:, 0]
+        self.job_features[:self.n_jobs, 7] = self.mean_cumulative_processing_time_of_jobs[:, -1]
         # Optionally fill in more features
 
         self.machine_features = np.zeros((self.n_machines, self.n_machine_features), dtype=float)
@@ -426,26 +448,6 @@ class FjspMaEnv(MultiAgentEnv):
                 self.job_action_mask[job_id] = 1
         self.machine_action_mask = np.zeros((self.n_machines,), dtype=int)
         self.machine_action_mask[:self.n_machines] = 1
-
-        # Reset other environment state
-        self.prev_cmax = 0
-        self.curr_cmax = 0
-        self.reward_this_step = 0.0
-        self.schedule_done = False
-        self.stage = 0
-        self.machine_routes = {m_id: np.empty((0, 2), dtype=int) for m_id in range(self.n_machines)}
-        self.result_start_time_for_jobs = np.zeros(shape=(self.n_jobs, self.max_n_operations, 2), dtype=float)
-        self.result_finish_time_for_jobs = np.zeros(shape=(self.n_jobs, self.max_n_operations, 2), dtype=float)
-        self.mean_processing_time_of_operations = np.zeros(shape=(self.n_jobs, self.max_n_operations), dtype=float)
-        for job_id in range(self.n_jobs):
-            for operation_id in range(self.n_operations_for_jobs[job_id]):
-                op = self.jobs[job_id].operations[operation_id]
-                self.mean_processing_time_of_operations[job_id][operation_id] = op.standard_duration
-        # self.mean_cumulative_processing_time_of_jobs = np.cumsum(self.mean_processing_time_of_operations, axis=1)
-        self.makespan_baseline = 1.5 * self.n_jobs * self.n_machines * self.mean_processing_time_of_operations.max()
-
-        self.initialize_disjunctive_graph(self.n_operations_for_jobs)
-        self.machine_routes = {m_id: np.empty((0, 2), dtype=int) for m_id in range(self.n_machines)}
 
         observations = self._get_obs()
         info = self._get_info()
