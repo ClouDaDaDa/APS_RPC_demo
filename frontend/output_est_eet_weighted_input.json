@@ -1,0 +1,416 @@
+{
+  "workTasks": [
+    {
+      "id": 1,
+      "plannedStart": 1.0,
+      "plannedEnd": 6.0
+    },
+    {
+      "id": 2,
+      "plannedStart": 9.0,
+      "plannedEnd": 20.0
+    },
+    {
+      "id": 3,
+      "plannedStart": 0.0,
+      "plannedEnd": 3.0
+    },
+    {
+      "id": 4,
+      "plannedStart": 4.0,
+      "plannedEnd": 10.0
+    }
+  ],
+  "machines": [
+    {
+      "id": "1",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 2.0,
+          "plannedEnd": 3.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 3.0,
+          "plannedEnd": 4.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 4.0,
+          "plannedEnd": 5.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 9.0,
+          "plannedEnd": 10.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 10.0,
+          "plannedEnd": 11.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 11.0,
+          "plannedEnd": 12.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 12.0,
+          "plannedEnd": 13.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 13.0,
+          "plannedEnd": 14.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 14.0,
+          "plannedEnd": 15.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 15.0,
+          "plannedEnd": 16.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 16.0,
+          "plannedEnd": 17.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 17.0,
+          "plannedEnd": 18.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 18.0,
+          "plannedEnd": 19.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 0.0,
+          "plannedEnd": 1.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 4,
+          "plannedStart": 5.0,
+          "plannedEnd": 6.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 6.0,
+          "plannedEnd": 7.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 7.0,
+          "plannedEnd": 8.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 8.0,
+          "plannedEnd": 9.0
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 1,
+          "plannedStart": 2.0,
+          "plannedEnd": 3.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 3.0,
+          "plannedEnd": 4.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 9.0,
+          "plannedEnd": 10.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 10.0,
+          "plannedEnd": 11.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 11.0,
+          "plannedEnd": 12.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 12.0,
+          "plannedEnd": 13.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 13.0,
+          "plannedEnd": 14.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 14.0,
+          "plannedEnd": 15.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 15.0,
+          "plannedEnd": 16.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 16.0,
+          "plannedEnd": 17.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 17.0,
+          "plannedEnd": 18.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 0.0,
+          "plannedEnd": 1.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 4.0,
+          "plannedEnd": 5.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 5.0,
+          "plannedEnd": 6.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 6.0,
+          "plannedEnd": 7.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 7.0,
+          "plannedEnd": 8.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 8.0,
+          "plannedEnd": 9.0
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 3.0,
+          "plannedEnd": 4.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 4.0,
+          "plannedEnd": 5.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 5.0,
+          "plannedEnd": 6.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 10.0,
+          "plannedEnd": 11.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 11.0,
+          "plannedEnd": 12.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 12.0,
+          "plannedEnd": 13.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 13.0,
+          "plannedEnd": 14.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 14.0,
+          "plannedEnd": 15.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 15.0,
+          "plannedEnd": 16.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 16.0,
+          "plannedEnd": 17.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 17.0,
+          "plannedEnd": 18.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 18.0,
+          "plannedEnd": 19.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 19.0,
+          "plannedEnd": 20.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 1.0,
+          "plannedEnd": 2.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 4,
+          "plannedStart": 6.0,
+          "plannedEnd": 7.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 7.0,
+          "plannedEnd": 8.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 8.0,
+          "plannedEnd": 9.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 9.0,
+          "plannedEnd": 10.0
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 1,
+          "plannedStart": 3.0,
+          "plannedEnd": 4.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 4.0,
+          "plannedEnd": 5.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 10.0,
+          "plannedEnd": 11.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 11.0,
+          "plannedEnd": 12.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 12.0,
+          "plannedEnd": 13.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 13.0,
+          "plannedEnd": 14.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 14.0,
+          "plannedEnd": 15.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 15.0,
+          "plannedEnd": 16.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 16.0,
+          "plannedEnd": 17.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 17.0,
+          "plannedEnd": 18.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 18.0,
+          "plannedEnd": 19.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 1.0,
+          "plannedEnd": 2.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 5.0,
+          "plannedEnd": 6.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 6.0,
+          "plannedEnd": 7.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 7.0,
+          "plannedEnd": 8.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 8.0,
+          "plannedEnd": 9.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 9.0,
+          "plannedEnd": 10.0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,551 @@
+{
+  "workTasks": [
+    {
+      "id": 1,
+      "plannedStart": 61.0,
+      "plannedEnd": 130.0
+    },
+    {
+      "id": 2,
+      "plannedStart": 52.0,
+      "plannedEnd": 90.0
+    },
+    {
+      "id": 3,
+      "plannedStart": 0.0,
+      "plannedEnd": 63.0
+    },
+    {
+      "id": 4,
+      "plannedStart": 88.0,
+      "plannedEnd": 130.0
+    }
+  ],
+  "machines": [
+    {
+      "id": "1",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 69.0,
+          "plannedEnd": 78.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 78.0,
+          "plannedEnd": 87.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 61.0,
+          "plannedEnd": 69.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 52.0,
+          "plannedEnd": 61.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 24.0,
+          "plannedEnd": 30.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 18.0,
+          "plannedEnd": 24.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 34.0,
+          "plannedEnd": 43.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 0.0,
+          "plannedEnd": 9.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 3,
+          "plannedStart": 30.0,
+          "plannedEnd": 34.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 43.0,
+          "plannedEnd": 52.0
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 69.0,
+          "plannedEnd": 78.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 97.0,
+          "plannedEnd": 106.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 115.0,
+          "plannedEnd": 123.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 63.0,
+          "plannedEnd": 69.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 79.0,
+          "plannedEnd": 88.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 31.0,
+          "plannedEnd": 35.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 54.0,
+          "plannedEnd": 63.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 3,
+          "plannedStart": 13.0,
+          "plannedEnd": 17.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 21.0,
+          "plannedEnd": 30.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 45.0,
+          "plannedEnd": 54.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 35.0,
+          "plannedEnd": 44.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 17.0,
+          "plannedEnd": 21.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 0.0,
+          "plannedEnd": 6.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 88.0,
+          "plannedEnd": 97.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 106.0,
+          "plannedEnd": 115.0
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 79.0,
+          "plannedEnd": 88.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 96.0,
+          "plannedEnd": 104.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 88.0,
+          "plannedEnd": 96.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 75.0,
+          "plannedEnd": 79.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 66.0,
+          "plannedEnd": 75.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 58.0,
+          "plannedEnd": 66.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 49.0,
+          "plannedEnd": 58.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 45.0,
+          "plannedEnd": 49.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 0.0,
+          "plannedEnd": 6.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 24.0,
+          "plannedEnd": 28.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 18.0,
+          "plannedEnd": 24.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 41.0,
+          "plannedEnd": 45.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 12.0,
+          "plannedEnd": 18.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 28.0,
+          "plannedEnd": 32.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 3,
+          "plannedStart": 32.0,
+          "plannedEnd": 41.0
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 103.0,
+          "plannedEnd": 107.0
+        },
+        {
+          "id": 2,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 2,
+          "plannedStart": 84.0,
+          "plannedEnd": 86.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 20.0,
+          "plannedEnd": 24.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 107.0,
+          "plannedEnd": 109.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 109.0,
+          "plannedEnd": 113.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 126.0,
+          "plannedEnd": 130.0
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 78.0,
+          "plannedEnd": 87.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 87.0,
+          "plannedEnd": 89.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 101.0,
+          "plannedEnd": 103.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 98.0,
+          "plannedEnd": 100.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 103.0,
+          "plannedEnd": 107.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 89.0,
+          "plannedEnd": 98.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 100.0,
+          "plannedEnd": 101.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 125.0,
+          "plannedEnd": 126.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 68.0,
+          "plannedEnd": 69.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 18.0,
+          "plannedEnd": 20.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 107.0,
+          "plannedEnd": 116.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 126.0,
+          "plannedEnd": 130.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 87.0,
+          "plannedEnd": 96.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 106.0,
+          "plannedEnd": 107.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 76.0,
+          "plannedEnd": 77.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 70.0,
+          "plannedEnd": 72.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 72.0,
+          "plannedEnd": 76.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 9.0,
+          "plannedEnd": 18.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 4,
+          "plannedStart": 97.0,
+          "plannedEnd": 106.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 124.0,
+          "plannedEnd": 126.0
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 99.0,
+          "plannedEnd": 103.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 124.0,
+          "plannedEnd": 126.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 90.0,
+          "plannedEnd": 99.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 103.0,
+          "plannedEnd": 105.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 105.0,
+          "plannedEnd": 109.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 86.0,
+          "plannedEnd": 90.0
+        },
+        {
+          "id": 2,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 3,
+          "plannedStart": 18.0,
+          "plannedEnd": 27.0
+        },
+        {
+          "id": 4,
+          "plannedStart": 115.0,
+          "plannedEnd": 124.0
+        }
+      ]
+    },
+    {
+      "id": "8",
+      "workTasks": [
+        {
+          "id": 2,
+          "plannedStart": 69.0,
+          "plannedEnd": 70.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 24.0,
+          "plannedEnd": 25.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 6.0,
+          "plannedEnd": 7.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 96.0,
+          "plannedEnd": 98.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 3,
+          "plannedStart": 12.0,
+          "plannedEnd": 13.0
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "workTasks": [
+        {
+          "id": 1,
+          "plannedStart": 104.0,
+          "plannedEnd": 106.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 123.0,
+          "plannedEnd": 125.0
+        },
+        {
+          "id": 1,
+          "plannedStart": 69.0,
+          "plannedEnd": 71.0
+        },
+        {
+          "id": 2,
+          "plannedStart": 66.0,
+          "plannedEnd": 68.0
+        },
+        {
+          "id": 3,
+          "plannedStart": 24.0,
+          "plannedEnd": 25.0
+        },
+        {
+          "id": 3,
+          "plannedStart": -1,
+          "plannedEnd": -1
+        },
+        {
+          "id": 3,
+          "plannedStart": 6.0,
+          "plannedEnd": 7.0
+        }
+      ]
+    }
+  ]
+}

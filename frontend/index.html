@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Gantt Chart - Production Scheduling</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Production Scheduling Gantt Charts</h1>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="zoom-slider">Zoom Level:</label>
+                <input type="range" id="zoom-slider" min="0.5" max="3" step="0.1" value="1">
+                <span id="zoom-value">1.0x</span>
+            </div>
+            <div class="control-group">
+                <button id="reset-zoom">Reset View</button>
+                <button id="fit-to-screen">Fit to Screen</button>
+            </div>
+            <div class="control-group">
+                <label for="order-filter">Filter Orders:</label>
+                <select id="order-filter" multiple>
+                    <option value="all" selected>All Orders</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-section">
+                <h2>Order-Level Gantt Chart</h2>
+                <p class="chart-description">Shows the overall planned start and end times for each order</p>
+                <div id="order-gantt" class="gantt-chart"></div>
+            </div>
+
+            <div class="chart-section">
+                <h2>Machine-Level Gantt Chart</h2>
+                <p class="chart-description">Shows individual operations scheduled on each machine</p>
+                <div id="machine-gantt" class="gantt-chart"></div>
+                <div id="legend" class="legend"></div>
+            </div>
+        </div>
+
+        <div class="statistics">
+            <div class="stat-card">
+                <h3>Total Orders</h3>
+                <span id="total-orders">-</span>
+            </div>
+            <div class="stat-card">
+                <h3>Total Machines</h3>
+                <span id="total-machines">-</span>
+            </div>
+            <div class="stat-card">
+                <h3>Schedule Duration</h3>
+                <span id="schedule-duration">-</span>
+            </div>
+            <div class="stat-card">
+                <h3>Machine Utilization</h3>
+                <span id="machine-utilization">-</span>
+            </div>
+        </div>
+
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script src="gantt-chart.js"></script>
+</body>
+</html>

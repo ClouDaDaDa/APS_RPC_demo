@@ -1,0 +1,29 @@
+{
+  "name": "gantt-chart-frontend",
+  "version": "1.0.0",
+  "description": "Interactive Gantt Chart Frontend for Production Scheduling",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 server.py",
+    "serve": "http-server -p 8000 -c-1",
+    "dev": "python3 server.py"
+  },
+  "keywords": [
+    "gantt",
+    "chart",
+    "scheduling",
+    "d3js",
+    "visualization",
+    "typescript",
+    "interactive"
+  ],
+  "author": "APS RPC Demo",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
